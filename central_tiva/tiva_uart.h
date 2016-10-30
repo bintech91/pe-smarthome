@@ -8,6 +8,7 @@
 #ifndef TIVA_UART_H_
 #define TIVA_UART_H_
 
+#include "common/common.h"
 /** brief Initialises the UART controller, configures I/O control
  * and interrupts
  * @param uart The UART instance to use (0 to \c UART_INSTANCE_COUNT - 1)

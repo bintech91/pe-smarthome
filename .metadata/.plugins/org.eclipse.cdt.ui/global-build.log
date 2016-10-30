@@ -1,0 +1,80 @@
+
+**** Build of configuration Debug for project central_tiva ****
+
+"C:\\ti\\ccsv6\\utils\\bin\\gmake" -k all 
+'Building file: ../znp_host/rpc/rpc.c'
+'Invoking: GNU Compiler'
+"C:/ti/ccsv6/tools/compiler/gcc-arm-none-eabi-4_9-2015q3/bin/arm-none-eabi-gcc.exe" -c -mcpu=cortex-m4 -march=armv7e-m -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -DPART_TM4C123GH6PM -DTARGET_IS_TM4C123_RB1 -I"C:/ti/ccsv6/tools/compiler/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include" -I"E:/project/PESmartHome/pe-smarthome/lib" -I"E:/project/PESmartHome/pe-smarthome/central_tiva/znp_host/mt" -I"E:/project/PESmartHome/pe-smarthome/central_tiva/znp_host/mt/Af" -I"E:/project/PESmartHome/pe-smarthome/central_tiva/znp_host/mt/Sapi" -I"E:/project/PESmartHome/pe-smarthome/central_tiva/znp_host/mt/Sys" -I"E:/project/PESmartHome/pe-smarthome/central_tiva/znp_host/mt/Zdo" -I"E:/project/PESmartHome/pe-smarthome/central_tiva/znp_host/rpc" -I"E:/project/PESmartHome/pe-smarthome/central_tiva/znp_host/platform/tiva_lauchpad" -ffunction-sections -fdata-sections -g -gdwarf-3 -gstrict-dwarf -Wall -specs="nosys.specs" -MD -std=c99 -c -MMD -MP -MF"znp_host/rpc/rpc.d" -MT"znp_host/rpc/rpc.o" -o"znp_host/rpc/rpc.o"  "../znp_host/rpc/rpc.c"
+znp_host/rpc/subdir_rules.mk:7: recipe for target 'znp_host/rpc/rpc.o' failed
+../znp_host/rpc/rpc.c:78:8: error: unknown type name 'sem_t'
+ static sem_t rpcSem;
+        ^
+../znp_host/rpc/rpc.c:83:8: error: unknown type name 'sem_t'
+ static sem_t srspSem;
+        ^
+../znp_host/rpc/rpc.c:89:8: error: unknown type name 'llq_t'
+ static llq_t rpcLlq;
+        ^
+../znp_host/rpc/rpc.c: In function 'rpcOpen':
+../znp_host/rpc/rpc.c:123:2: warning: implicit declaration of function 'rpcTransportOpen' [-Wimplicit-function-declaration]
+  fd = rpcTransportOpen(_devicePath, port);
+  ^
+../znp_host/rpc/rpc.c:127:3: warning: implicit declaration of function 'System_printf' [-Wimplicit-function-declaration]
+   dbg_print(PRINT_LEVEL_ERROR, "rpcOpen: %s device open failed\n",
+   ^
+../znp_host/rpc/rpc.c:127:3: warning: implicit declaration of function 'System_flush' [-Wimplicit-function-declaration]
+../znp_host/rpc/rpc.c:132:2: warning: implicit declaration of function 'sem_init' [-Wimplicit-function-declaration]
+  sem_init(&rpcSem, 0, 1); // initialize mutex to 1 - binary semaphore
+  ^
+../znp_host/rpc/rpc.c: In function 'rpcInitMq':
+../znp_host/rpc/rpc.c:152:2: warning: implicit declaration of function 'llq_open' [-Wimplicit-function-declaration]
+  llq_open(&rpcLlq);
+  ^
+../znp_host/rpc/rpc.c: In function 'rpcGetMqClientMsg':
+../znp_host/rpc/rpc.c:174:2: warning: implicit declaration of function 'llq_receive' [-Wimplicit-function-declaration]
+  rpcLen = llq_receive(&rpcLlq, (char *) rpcFrame, RPC_MAX_LEN + 1);
+  ^
+../znp_host/rpc/rpc.c: In function 'rpcWaitMqClientMsg':
+../znp_host/rpc/rpc.c:208:17: error: storage size of 'befTime' isn't known
+  struct timeval befTime, aftTime;
+                 ^
+../znp_host/rpc/rpc.c:208:26: error: storage size of 'aftTime' isn't known
+  struct timeval befTime, aftTime;
+                          ^
+../znp_host/rpc/rpc.c:218:2: warning: implicit declaration of function 'gettimeofday' [-Wimplicit-function-declaration]
+  gettimeofday(&befTime, NULL);
+  ^
+../znp_host/rpc/rpc.c:219:2: warning: implicit declaration of function 'llq_timedreceive' [-Wimplicit-function-declaration]
+  rpcLen = llq_timedreceive(&rpcLlq, (char *) rpcFrame, RPC_MAX_LEN + 1, &to);
+  ^
+../znp_host/rpc/rpc.c:208:26: warning: unused variable 'aftTime' [-Wunused-variable]
+  struct timeval befTime, aftTime;
+                          ^
+../znp_host/rpc/rpc.c:208:17: warning: unused variable 'befTime' [-Wunused-variable]
+  struct timeval befTime, aftTime;
+                 ^
+../znp_host/rpc/rpc.c: In function 'rpcForceRun':
+../znp_host/rpc/rpc.c:258:2: warning: implicit declaration of function 'rpcTransportWrite' [-Wimplicit-function-declaration]
+  rpcTransportWrite(&forceBoot, 1);
+  ^
+../znp_host/rpc/rpc.c: In function 'rpcProcess':
+../znp_host/rpc/rpc.c:278:2: warning: implicit declaration of function 'rpcTransportRead' [-Wimplicit-function-declaration]
+  bytesRead = rpcTransportRead(&sofByte, 1);
+  ^
+../znp_host/rpc/rpc.c:373:6: warning: implicit declaration of function 'sem_post' [-Wimplicit-function-declaration]
+      sem_post(&srspSem);
+      ^
+../znp_host/rpc/rpc.c:380:6: warning: implicit declaration of function 'llq_add' [-Wimplicit-function-declaration]
+      llq_add(&rpcLlq, (char*) &rpcBuff[1], rpcLen, 1);
+      ^
+../znp_host/rpc/rpc.c: In function 'rpcSendFrame':
+../znp_host/rpc/rpc.c:439:2: warning: implicit declaration of function 'sem_wait' [-Wimplicit-function-declaration]
+  sem_wait(&rpcSem);
+  ^
+../znp_host/rpc/rpc.c:487:3: warning: implicit declaration of function 'sem_timedwait' [-Wimplicit-function-declaration]
+   status = sem_timedwait(&srspSem, &srspTimeOut);
+   ^
+gmake: *** [znp_host/rpc/rpc.o] Error 1
+gmake: Target 'all' not remade because of errors.
+
+**** Build Finished ****

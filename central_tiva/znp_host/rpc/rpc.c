@@ -48,14 +48,8 @@
 #include <ctype.h>
 #include <fcntl.h>      // For O_* constants
 #include <errno.h>
-#include <signal.h>
-#include <semaphore.h>
-#include <time.h>
-#include "queue.h"
-#include <time.h>
 
 #include "rpc.h"
-#include "rpcTransport.h"
 #include "mtParser.h"
 #include "dbgPrint.h"
 
@@ -279,7 +273,8 @@ int32_t rpcProcess(void)
 	uint8_t retryAttempts = 0, len, rpcBuff[RPC_MAX_LEN];
 	uint8_t fcs;
 
-#ifndef HAL_UART_IP //No SOF for IP	//read first byte and check it is a SOF
+#ifndef HAL_UART_IP //No SOF for IP
+	//read first byte and check it is a SOF
 	bytesRead = rpcTransportRead(&sofByte, 1);
 
 	if ((sofByte == MT_RPC_SOF) && (bytesRead == 1))
@@ -296,7 +291,8 @@ int32_t rpcProcess(void)
 			len = rpcLen;
 			rpcBuff[0] = rpcLen;
 
-#ifdef HAL_UART_IP //No FCS for IP			//allocating RPC payload (+ cmd0, cmd1)
+#ifdef HAL_UART_IP //No FCS for IP
+			//allocating RPC payload (+ cmd0, cmd1)
 			rpcLen += RPC_CMD0_FIELD_LEN + RPC_CMD1_FIELD_LEN;
 #else
 			//allocating RPC payload (+ cmd0, cmd1 and fcs)

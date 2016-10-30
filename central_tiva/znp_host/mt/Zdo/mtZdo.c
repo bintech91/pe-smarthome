@@ -47,7 +47,6 @@
 #include "mtSys.h"
 #include "mtParser.h"
 #include "rpc.h"
-#include "hostConsole.h"
 #include "dbgPrint.h"
 
 /*********************************************************************

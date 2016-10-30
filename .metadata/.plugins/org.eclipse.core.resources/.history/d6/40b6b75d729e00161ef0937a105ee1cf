@@ -1,0 +1,9 @@
+/*
+ * main.c
+ */
+#include "znp_host/rpc/rpc.h"
+int main(void) {
+	
+
+	return 0;
+}

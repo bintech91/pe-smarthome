@@ -1,0 +1,1 @@
+znp_host/rpc/rpc.o: ../znp_host/rpc/rpc.c
