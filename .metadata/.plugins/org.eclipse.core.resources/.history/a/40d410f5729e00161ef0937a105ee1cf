@@ -1,5 +1,0 @@
-tiva_uart.o: ../tiva_uart.c ../tiva_uart.h ../common/common.h
-
-../tiva_uart.h:
-
-../common/common.h:
