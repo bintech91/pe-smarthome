@@ -7,6 +7,8 @@
 
 #include "tiva_uart.h"
 
+#include <stdint.h>
+
 void uart_init(uint8_t uart) {
 
 }
