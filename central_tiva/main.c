@@ -1,6 +1,8 @@
 /*
  * main.c
  */
+
+#include "inc/"
 int main(void) {
 	
 
