@@ -82,70 +82,11 @@
 #include "EK_TM4C1294XL.h"
 
 #if defined(ccs)
-#pragma DATA_ALIGN(EK_TM4C1294XL_DMAControlTable, 1024)
 #elif defined(ewarm)
 #pragma data_alignment=1024
 #elif defined(gcc)
 __attribute__ ((aligned (1024)))
 #endif
-static tDMAControlTable EK_TM4C1294XL_DMAControlTable[32];
-static Bool DMA_initialized = false;
-
-/* Hwi_Struct used in the initDMA Hwi_construct call */
-static Hwi_Struct dmaHwiStruct;
-
-/*
- *  ======== EK_TM4C1294XL_errorDMAHwi ========
- */
-static Void EK_TM4C1294XL_errorDMAHwi(UArg arg)
-{
-	System_printf("DMA error code: %d\n", uDMAErrorStatusGet());
-	uDMAErrorStatusClear();
-	System_abort("DMA error!!");
-}
-
-/*
- *  ======== EK_TM4C1294XL_usbBusFaultHwi ========
- */
-static Void EK_TM4C1294XL_usbBusFaultHwi(UArg arg)
-{
-	/*
-	 *  This function should be modified to appropriately manage handle
-	 *  a USB bus fault.
-	 */
-	System_printf("USB bus fault detected.");
-	Hwi_clearInterrupt(INT_GPIOQ4);
-	System_abort("USB error!!");
-}
-
-/*
- *  ======== EK_TM4C1294XL_initDMA ========
- */
-void EK_TM4C1294XL_initDMA(void)
-{
-	Error_Block eb;
-	Hwi_Params hwiParams;
-
-	if (!DMA_initialized)
-	{
-
-		Error_init(&eb);
-
-		Hwi_Params_init(&hwiParams);
-		Hwi_construct(&(dmaHwiStruct), INT_UDMAERR, EK_TM4C1294XL_errorDMAHwi,
-		        &hwiParams, &eb);
-		if (Error_check(&eb))
-		{
-			System_abort("Couldn't construct DMA error hwi");
-		}
-
-		SysCtlPeripheralEnable(SYSCTL_PERIPH_UDMA);
-		uDMAEnable();
-		uDMAControlBaseSet(EK_TM4C1294XL_DMAControlTable);
-
-		DMA_initialized = true;
-	}
-}
 
 /*
  *  ======== EK_TM4C1294XL_initGeneral ========
@@ -264,29 +205,30 @@ void EK_TM4C1294XL_initUART(void)
 
 	/* Enable and configure the peripherals used by the UART2 */
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_UART2);
-	GPIOPinConfigure(GPIO_PD4_U2RX);
-	GPIOPinConfigure(GPIO_PD5_U2TX);
-	GPIOPinTypeUART(GPIO_PORTD_BASE, GPIO_PIN_4 | GPIO_PIN_5);
+	GPIOPinConfigure(GPIO_PD6_U2RX);
+	GPIOPinConfigure(GPIO_PD7_U2TX);
+	GPIOPinTypeUART(GPIO_PORTD_BASE, GPIO_PIN_6 | GPIO_PIN_7);
 
 	/* Enable and configure the peripherals used by the UART6 */
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_UART6);
-	GPIOPinConfigure(GPIO_PP0_U6RX);
-	GPIOPinConfigure(GPIO_PP1_U6TX);
-	GPIOPinTypeUART(GPIO_PORTP_BASE, GPIO_PIN_0 | GPIO_PIN_1);
+	GPIOPinConfigure(GPIO_PD4_U6RX);
+	GPIOPinConfigure(GPIO_PD5_U6TX);
+	GPIOPinTypeUART(GPIO_PORTD_BASE, GPIO_PIN_4 | GPIO_PIN_5);
 
 	/* Enable and configure the peripherals used by the UART7 */
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_UART7);
-	GPIOPinConfigure(GPIO_PC4_U7RX);
-	GPIOPinConfigure(GPIO_PC5_U7TX);
-	GPIOPinTypeUART(GPIO_PORTC_BASE, GPIO_PIN_4 | GPIO_PIN_5);
+	GPIOPinConfigure(GPIO_PE0_U7RX);
+	GPIOPinConfigure(GPIO_PE1_U7TX);
+	GPIOPinTypeUART(GPIO_PORTE_BASE, GPIO_PIN_0 | GPIO_PIN_1);
 
 	/* Enable and configure the peripherals used by the UART4 */
 	SysCtlPeripheralEnable(SYSCTL_PERIPH_UART4);
-	GPIOPinConfigure(GPIO_PK0_U4RX);
-	GPIOPinConfigure(GPIO_PK1_U4TX);
+	GPIOPinConfigure(GPIO_PC4_U4RX);
+	GPIOPinConfigure(GPIO_PC5_U4TX);
 #ifndef CC26xx
-	GPIOPinConfigure(GPIO_PK2_U4RTS);
-	GPIOPinConfigure(GPIO_PK3_U4CTS);
+	//@TODO: CHECK u4rts and u4cts for what
+//	GPIOPinConfigure(GPIO_PK2_U4RTS);
+//	GPIOPinConfigure(GPIO_PK3_U4CTS);
 #endif //CC26xx
 	GPIOPinTypeUART(GPIO_PORTK_BASE, GPIO_PIN_0 | GPIO_PIN_1 
 #ifndef CC26xx
