@@ -1,4 +1,4 @@
-package com.bin.peshdataserver.common;
+package com.bin.peshdataserver.common.servers;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -20,23 +20,23 @@ import org.apache.thrift.transport.TTransportException;
 /**
  * server use Framed transport and Binary protocol
  *
- * @author namnq
+ * @author tanpt
  *
  */
 public class ThriftServers {
 
 	////
-	protected Class _serverClass = null;
+	protected Class serverClass_ = null;
 
-	protected ThreadPoolExecutor _executor = null;
+	protected ThreadPoolExecutor executor_ = null;
 	// <-- for managing servers
 	////////////////////////////////////////////////////////////////////////////
 
-	private static final Logger _Log = Logger.getLogger(ThriftServers.class);
-	protected String _name;
-	protected TServer _server;
-	protected Config _config = null;
-	private final AtomicBoolean _running = new AtomicBoolean(false);
+	private static final Logger LOGGER = Logger.getLogger(ThriftServers.class);
+	protected String name_;
+	protected TServer server_;
+	protected Config config_ = null;
+	private final AtomicBoolean running_ = new AtomicBoolean(false);
 
 	public static class Config {
 
@@ -86,59 +86,59 @@ public class ThriftServers {
 
 	protected class ServerRunner implements Runnable {
 
-		private final TServer _server;
-		private final AtomicBoolean _running;
+		private final TServer server_;
+		private final AtomicBoolean running_;
 
 		public ServerRunner(TServer server, AtomicBoolean running) {
 			assert (server != null && running != null);
-			_server = server;
-			_running = running;
+			server_ = server;
+			running_ = running;
 		}
 
 		@Override
 		public void run() {
-			_Log.info("Thrift server is going to serve");
+			LOGGER.info("Thrift server is going to serve");
 			try {
-				_server.serve();
+				server_.serve();
 			} catch (Exception ex) {
-				_Log.error(null, ex);
+				LOGGER.error(null, ex);
 			}
-			_Log.info("Thrift server stopped");
-			_running.set(false);
+			LOGGER.info("Thrift server stopped");
+			running_.set(false);
 		}
 	}
 
 	public ThriftServers(Config config) {
-		_config = config;
+		config_ = config;
 	}
 
 	public final String getName() {
-		return _name;
+		return name_;
 	}
 
 	public final TServer getServer() {
-		return _server;
+		return server_;
 	}
 
 	public final Config getConfig() {
-		return _config.clone();
+		return config_.clone();
 	}
 
 	public final boolean isRunning() {
-		return _running.get();
+		return running_.get();
 	}
 
 	public final Class getServerClass() {
-		return _serverClass;
+		return serverClass_;
 	}
 
 	public final ThreadPoolExecutor getExecutor() {
-		return _executor;
+		return executor_;
 	}
 
 	public boolean setup(TProcessor processor) {
-		if (_server != null) {
-			_Log.warn("Server was already setup, dont need to setup again");
+		if (server_ != null) {
+			LOGGER.warn("Server was already setup, dont need to setup again");
 			return true;
 		}
 		try {
@@ -146,31 +146,31 @@ public class ThriftServers {
 			setupThreadedSelectorServer(processor);
 			return true;
 		} catch (Exception ex) {
-			_Log.error(null, ex);
+			LOGGER.error(null, ex);
 			return false;
 		}
 	}
 
 	private void setupThreadedSelectorServer(TProcessor processor) throws TTransportException, UnknownHostException {
-		assert (_config.isValid());
+		assert (config_.isValid());
 
 		//===== setup socket =====
-		InetAddress inetAddr = InetAddress.getByName(_config.host); //may throw UnknownHostException
-		TNonblockingServerSocket socket = new TNonblockingServerSocket(_config.port); //may throw TTransportException
+		InetAddress inetAddr = InetAddress.getByName(config_.host); //may throw UnknownHostException
+		TNonblockingServerSocket socket = new TNonblockingServerSocket(config_.port); //may throw TTransportException
 		TThreadedSelectorServer.Args options = new TThreadedSelectorServer.Args(socket);
 
 		//===== setup executor =====
 		LinkedBlockingQueue<Runnable> workQueue;
-		if (_config.maxWorkQueueSize > 0) {
-			workQueue = new LinkedBlockingQueue<Runnable>(_config.maxWorkQueueSize);
+		if (config_.maxWorkQueueSize > 0) {
+			workQueue = new LinkedBlockingQueue<Runnable>(config_.maxWorkQueueSize);
 		} else {
 			workQueue = new LinkedBlockingQueue<Runnable>(); //unlimited size
 		}
 		int stopTimeoutVal = options.getStopTimeoutVal(); //use default: 60
 		TimeUnit stopTimeoutUnit = options.getStopTimeoutUnit(); //use default: SECONDS
-		_executor = new ThreadPoolExecutor(
-				_config.ncoreThreads,
-				_config.nmaxThreads,
+		executor_ = new ThreadPoolExecutor(
+				config_.ncoreThreads,
+				config_.nmaxThreads,
 				stopTimeoutVal,
 				stopTimeoutUnit,
 				workQueue,
@@ -189,39 +189,39 @@ public class ThriftServers {
 		});
 
 		//===== setup options =====
-		options.executorService(_executor);
+		options.executorService(executor_);
 		options.processor(processor);
-		options.maxReadBufferBytes = _config.maxFrameSize;
-		options.transportFactory(new TFramedTransport.Factory(_config.maxFrameSize));
+		options.maxReadBufferBytes = config_.maxFrameSize;
+		options.transportFactory(new TFramedTransport.Factory(config_.maxFrameSize));
 		options.protocolFactory(new TBinaryProtocol.Factory(false /*strictRead*/, true /*strictWrite*/));
-		options.acceptPolicy(_config.acceptPolicy);
-		options.acceptQueueSizePerThread(_config.acceptQueueSizePerThread);
-		options.selectorThreads = _config.nselectorThreads;
+		options.acceptPolicy(config_.acceptPolicy);
+		options.acceptQueueSizePerThread(config_.acceptQueueSizePerThread);
+		options.selectorThreads = config_.nselectorThreads;
 
 		//===== setup server =====
-		_server = new TThreadedSelectorServer(options);
-		_Log.info(String.format("Thrift server (TThreadedSelectorServer-%s) listens on %s:%s", _name, inetAddr.getHostAddress(), _config.port));
+		server_ = new TThreadedSelectorServer(options);
+		LOGGER.info(String.format("Thrift server (TThreadedSelectorServer-%s) listens on %s:%s", name_, inetAddr.getHostAddress(), config_.port));
 	}
 
 	public boolean start() {
-		if (_server == null) {
+		if (server_ == null) {
 			return false;
 		}
-		if (!_running.compareAndSet(false, true)) {
-			_Log.warn("Server is already running, dont need to start again");
+		if (!running_.compareAndSet(false, true)) {
+			LOGGER.warn("Server is already running, dont need to start again");
 			return true;
 		}
-		Thread thread = new Thread(new ServerRunner(_server, _running), "ThriftServers");
+		Thread thread = new Thread(new ServerRunner(server_, running_), "ThriftServers");
 		thread.start();
 		return true;
 	}
 
 	public void stop() {
-		if (_server == null) {
+		if (server_ == null) {
 			return;
 		}
-		if (_running.get()) {
-			_server.stop();
+		if (running_.get()) {
+			server_.stop();
 		}
 	}
 }
