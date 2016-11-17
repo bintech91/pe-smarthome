@@ -17,6 +17,8 @@ public class UARTServers {
 
 	private static final Logger _Log = Logger.getLogger(UARTServers.class);
 
+	private final AtomicBoolean _running = new AtomicBoolean(false);
+
 	public static class Config {
 
 		public String portName;
@@ -55,6 +57,28 @@ public class UARTServers {
 	}
 
 	public UARTServers() {
+
+	}
+
+	public boolean setup() {
+		return true;
+	}
+
+	public boolean start() {
+		if (_server == null) {
+			return false;
+		}
+		if (!_running.compareAndSet(false, true)) {
+			_Log.warn("Server is already running, dont need to start again");
+			return true;
+		}
+
+		Thread thread = new Thread(new UARTServers.ServerRunner(_server, _running), "ThriftServers");
+		thread.start();
+		return true;
+	}
+
+	public void stop() {
 
 	}
 
